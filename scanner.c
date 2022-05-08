@@ -5,7 +5,6 @@ extern int yylex();
 extern int yylineno;
 extern char* yytext;
 
-char *names[] = {NULL, "Monom", "Variable", "Strong_sign", "Weak_sign"};
 
 int main(void){
 
@@ -29,6 +28,9 @@ int main(void){
             case BRACKET:
                 printf("BRACKET: %s\n", yytext);
                 break;
+            case END_OF_FILE:
+            printf("We have EOF\n");
+            break;
             default:
                 printf("Error in line %d: unexpected symbol \"%s\"\n", yylineno, yytext);
                 return -1;

@@ -7,7 +7,8 @@
 [A-Z]* 	return VARIABLE;
 [+-=]	return COMMON_SIGN;
 [*^]	return STRONG_SIGN;
-[()]	return BRACKET; 
+[()]	return BRACKET;
+<<EOF>>     return END_OF_FILE; 
 [ \t\n]					;
 .						;
 

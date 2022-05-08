@@ -4,4 +4,4 @@
 #define STRONG_SIGN 4
 #define BRACKET 5
 #define UNO_MINUS 6
-#define SPACE_ERROR 8
+#define END_OF_FILE 8
