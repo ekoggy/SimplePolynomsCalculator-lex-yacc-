@@ -6,12 +6,13 @@ typedef unsigned short BOOL;
 typedef struct Expression Expr;
 typedef struct Polynom Poly;
 
+
+
 struct Polynom{
     int coef;
     char var_string[25];
     int power;
-    char next_sign;
-    char prev_sign;
+    char sign;
 
     Poly *next;
     Poly *prev;
@@ -27,17 +28,16 @@ struct Expression{
     Expr *prev;
 };
 
+extern Expr * expr_list = NULL;
 void printError	(const char *, const char *);
-void add_to_variables(char, Expr);
+void add_to_expression_list(char, Expr);
 void print_expression(Expr*);
-Expr* sum_expression(Expr, Expr);
-Expr* sub_expression(Expr, Expr);
-Expr* mul_expression(Expr, Expr);
-Expr* pow_expression(Expr, int);
-Expr* try_to_calculate_expression(Expr);
+Expr* sum_expression(Expr*, Expr*);
+Expr* sub_expression(Expr*, Expr*);
+Expr* mul_expression(Expr*, Expr*);
+Expr* pow_expression(Expr*, int);
+Expr* try_to_calculate_expression(Expr*);
 Expr* get_expression(char);
-Expr* add_to_expression(Poly);
-Poly* sum_polynoms(Poly, Poly);
-Poly* sub_polynoms(Poly, Poly);
-Poly* add_to_polynoms(char string[100]);
-Poly* try_to_calculate_polynom(Poly);
+Expr* get_mul_expression(char, int);
+Expr* add_to_expression(Poly*);
+Poly* create_polynom(char string[1000]);

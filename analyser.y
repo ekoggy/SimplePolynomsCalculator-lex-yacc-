@@ -1,21 +1,21 @@
 %{
 	#include "grammar.h"
-    #define YYDEBUG 1
+	void yyerror(char const *s);
+	int	gLineNum;
 %}
 
 %union
 {
-	Poly* 	poly;
-	Expr*	expr;
+	struct Polynom* 	poly;
+	struct Expression*	expr;
 	int 	num;
-	char 	string[100];
+	char 	string[1000];
 	char 	symbol;
 }
 
 %type <symbol>	    end_symbol
 %type <expr> 	    expression variable
-%type <poly> 	    polynom temp
-%type <string>      monom
+%type <poly> 	    polynom
 
 %left '+' '-'
 %left '*'
@@ -23,9 +23,9 @@
 
 %start start
 %token <symbol>	    END_OF_LINE END_OF_FILE
-%token <string>	    MONOM VAR
+%token <string>	    POLYNOM PRINT
 %token <symbol>	    RIGHT_BRACKET LEFT_BRACKET
-%token <str>        PRINT
+%token <symbol>     VAR
 %token <num>        NUMBER
 %token <symbol>     PLUS MINUS MUL POW EQ
 %%
@@ -52,18 +52,13 @@ expression: expression PLUS variable                {$$ = sum_expression($1, $3)
 			;
 
 variable:   VAR                                     {$$ = get_expression($1);}
-		    | polynom temp                          { $$ = add_to_polymon($1);
-                                                        $$ = add_to_expression($$);}
+			| NUMBER VAR 							{$$ = get_mul_expression($2, $1);}
+			| polynom                        		{$$ = add_to_expression($1);}
 			;
 
-temp: MINUS MONOM {$$ = add_to_polymon($1);}
-    | PLUS MONOM {$$ = add_to_polymon($1);}
-    ;
-
-
-polynom:     LEFT_BRACKET polynom RIGHT_BRACKET    {$$ = try_to_calculate_polynom($2);}
-            | monom                                 {$$ = add_to_polymon($1);}
-		    ;
-
-monom: MONOM                                        {$$ = $1;}
+polynom: 	POLYNOM									{create_polynom($1);}
 %%
+
+int main (void) {	
+	return yyparse ();
+}
