@@ -1,5 +1,6 @@
 %{
 	#include "grammar.h"
+    #define YYDEBUG 1
 %}
 
 %union
@@ -11,9 +12,10 @@
 	char 	symbol;
 }
 
-%type <symbol>	    end_symbol 
+%type <symbol>	    end_symbol
 %type <expr> 	    expression variable
-%type <poly> 	    polynom 
+%type <poly> 	    polynom temp
+%type <string>      monom
 
 %left '+' '-'
 %left '*'
@@ -34,28 +36,34 @@ start:
 	        ;
 
 command:    expression EQ expression end_symbol     {add_to_variables($1, $3);}
-		    |PRINT expression end_symbol            {print_expression($2);}
+		    | PRINT expression end_symbol           {print_expression($2);}
 		    ;
 
 end_symbol: END_OF_FILE                             {$$ = $1;}
-			|END_OF_LINE                            {$$ = $1;}
+			| END_OF_LINE                           {$$ = $1;}
 	        ;
 
 expression: expression PLUS variable                {$$ = sum_expression($1, $3);}
 			| expression MINUS variable             {$$ = sub_expression($1, $3);}
 			| expression MUL variable               {$$ = mul_expression($1, $3);}
 			| expression POW NUMBER                 {$$ = pow_expression($1, $3);}
-			| LEFT_BRACKET expression RIGHT_BRACKET {$$ = some_action2($2);}
+			| LEFT_BRACKET expression RIGHT_BRACKET {$$ = try_to_calculate_expression($2);}
 			| variable                              {$$ = $1;}
 			;
 
 variable:   VAR                                     {$$ = get_expression($1);}
-		    |polynom                                {$$ = add_to_expression($1);}
+		    | polynom temp                          { $$ = add_to_polymon($1);
+                                                        $$ = add_to_expression($$);}
 			;
 
-polynom:    polynom PLUS MONOM                      {$$ = sum_polynoms($1, add_to_polymon($2));}
-	    	| polynom MINUS MONOM                   {$$ = sub_polynoms($1, add_to_polymon($2));}
-		    | LEFT_BRACKET polynom RIGHT_BRACKET    {$$ = some_action($2);}
-            | MONOM                                 {$$ = add_to_polymon($1);}
+temp: MINUS MONOM {$$ = add_to_polymon($1);}
+    | PLUS MONOM {$$ = add_to_polymon($1);}
+    ;
+
+
+polynom:     LEFT_BRACKET polynom RIGHT_BRACKET    {$$ = try_to_calculate_polynom($2);}
+            | monom                                 {$$ = add_to_polymon($1);}
 		    ;
+
+monom: MONOM                                        {$$ = $1;}
 %%
