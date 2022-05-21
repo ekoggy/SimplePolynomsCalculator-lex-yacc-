@@ -1,43 +1,56 @@
-#include <stdio.h>
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>     /* C declarations used in actions */
 #include <stdlib.h>
-#define TRUE 1
-#define FALSE 0
-typedef unsigned short BOOL;
-typedef struct Expression Expr;
-typedef struct Polynom Poly;
+#include <ctype.h>
+#include <string.h>
+#include <math.h>
+#include <errno.h>
+#include <limits.h>
 
 
+#define COUNT_MONOM 100
+#define COUNT_POLINOM 26
+#define SIZE_MONOM (COUNT_POLINOM + 1)
+#define MINUS 1
+#define PLUS 0
+#define MULTIPL 2
 
-struct Polynom{
-    int coef;
-    char var_string[25];
-    int power;
-    char sign;
+struct Expression
+{
+	int size;
+	char id_variable;
+	int **structure;
 
-    Poly *next;
-    Poly *prev;
 };
+extern int gLineNum;
 
-struct Expression{
-    char var;
-    int coef;
-    Poly Polynom;
-    int power;
 
-    Expr *next;
-    Expr *prev;
-};
+//other
+void ZeroStruct(struct Expression *new_polynom);
+int* CreateList();
+char IntSymbolToChar(int token);
+int CharSymbolToIndex(char token);
+void PrintMatrix(struct Expression* polynom);
+void yyerror (char *s);
+void PrintError(char *s);
+int Pow(int var_p, int power_p);
+int MultipleNumbers(int a, int b);
 
-extern Expr * expr_list = NULL;
-void printError	(const char *, const char *);
-void add_to_expression_list(char, Expr);
-void print_expression(Expr*);
-Expr* sum_expression(Expr*, Expr*);
-Expr* sub_expression(Expr*, Expr*);
-Expr* mul_expression(Expr*, Expr*);
-Expr* pow_expression(Expr*, int);
-Expr* try_to_calculate_expression(Expr*);
-Expr* get_expression(char);
-Expr* get_mul_expression(char, int);
-Expr* add_to_expression(Poly*);
-Poly* create_polynom(char string[1000]);
+//monomial
+int SearchMonom(int **structure_poly_1, int *monom_poly_2);
+void AddMonom(struct Expression *polynom, int *monom, int idx);
+void MinusMonom(struct Expression *polynom, int *monom, int idx);
+int* MonomialInit(char symbol, int degree, int coef);
+int* MonomialMultipl(int *monom_1, int *monom_2);
+void MonomialPrint(int *result_monom);
+void MonomlPower(int* monom, int power);
+
+//polynomial
+void AssignmentPolynom(char variable_p,struct Expression *polynom);
+void PolynomSummary(struct Expression *polynom_1, struct Expression *polynom_2);
+void PolynomMinus(struct Expression *polynom_1, struct Expression *polynom_2);
+struct Expression* PolynomMultiple(struct Expression *polynom_1, struct Expression *polynom_2);
+struct Expression* PolynomPower(struct Expression* polynom, int power);
+void PrintPolynom(int idx);
+struct Expression* PolynomInit();
+struct Expression* GetPolynom(char variable_p);
