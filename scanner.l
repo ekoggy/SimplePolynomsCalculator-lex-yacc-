@@ -26,12 +26,12 @@ int yylex();
 <in_single>.          	;
 <in_single>\n			BEGIN out_com;
 
-<out_com>"-"            {return TMINUS;}
+<out_com>"-"            {return MINUS;}
 <out_com>">>"			{return PRINT;}
 <out_com>[a-z]* 		{yylval.symbol = yytext[0]; return LITERAL;}
 <out_com>[A-Z]* 		{yylval.symbol = yytext[0]; return VAR;}
 <out_com>[1-9]+			{if((strlen(yytext) > 1)&&(yytext[0] == 48)){
-                            PrintError("Incorrect number");
+                            Helper::PrintError("Incorrect number");
                             }
                         yylval.num = atoi(yytext); return NUMBER;
                         }
