@@ -9,6 +9,8 @@ void yyerror (char const *s)
 	exit(-1);
 } 
 
+
+//Helper class
 int Helper::Pow(int var_p, int power_p)
 {
 	for(int i = 1; i < power_p; i++)
@@ -88,17 +90,16 @@ void Helper::PrintError(char const *s)
 	exit(-1);
 } 
 
-void ZeroStruct(struct Expression *new_polynom)
+int* Helper::CreateList()
 {
-	new_polynom->size = 0;
-	new_polynom->id_variable = 1;
-	for(int i = 0; i < COUNT_MONOM; i++)
-	{
-		for(int j = 0; j < SIZE_MONOM; j++)
-			new_polynom->structure[i][j] = 0;
-	}
+	int *mass = (int*)malloc(SIZE_MONOM * sizeof(int));
+	for(int i = 0; i <= SIZE_MONOM; i++)
+		mass[i] = 0;
+	return mass;
 }
 
+
+//Monom class
 int SearchMonom(int **structure_poly_1, int *monom_poly_2)
 {
 	if(monom_poly_2 != NULL || structure_poly_1 != NULL)
@@ -130,6 +131,71 @@ int SearchMonom(int **structure_poly_1, int *monom_poly_2)
 		return -1;
 }
 
+int* MonomialInit(char symbol, int degree, int coef)
+{
+	int idx = 0;
+
+	int *new_monomial =	Helper::CreateList();
+
+	if(symbol != 0)
+	{
+		idx = Helper::CharSymbolToIndex(symbol) + 1;
+		new_monomial[idx] = degree;
+	}
+	new_monomial[0] = coef;
+
+	
+	return new_monomial;
+}
+
+int* MonomialMultipl(int *monom_1, int *monom_2)
+{
+	int *result = MonomialInit(0, 0, 1);
+	for(int i = 1; i <= SIZE_MONOM; i++)
+		result[i] = monom_1[i] + monom_2[i];
+
+	//multiple coeff
+	result[0] = Helper::MultipleNumbers( monom_1[0], monom_2[0]);
+
+	return result;
+}
+
+void MonomialPrint(int *result_monom)
+{
+	char symbol = '\0';
+	if(result_monom[0] != 0)
+		printf("%d", result_monom[0]);
+	for(int i = 1; i <= SIZE_MONOM; i++)
+	{
+		if(result_monom[i] != 0)
+		{
+			symbol = Helper::IntSymbolToChar(i);
+			printf("%c", symbol);
+		}
+	}
+
+	printf("\n");
+}
+
+void MonomlPower(int* monom, int power)
+{
+	for(int i = 1; i < SIZE_MONOM; i++)
+	{
+		if(monom[i] != 0)
+			monom[i] = Helper::MultipleNumbers(monom[i], power);
+	}
+	if((monom[0] == 0)&&(power == 0))
+	{
+		printf("Error uncertainty\n");
+		exit(-1);
+	}
+	else
+		monom[0] = Helper::Pow(monom[0], power);
+}
+
+
+
+//Polynom class
 void RemoveEmptyMonom(struct Expression *polynom, int idx)
 {
 	//printf("RemoveEmptyMonom\n");
@@ -142,8 +208,16 @@ void RemoveEmptyMonom(struct Expression *polynom, int idx)
 	polynom->size --;
 }
 
-
-
+void ZeroStruct(struct Expression *new_polynom)
+{
+	new_polynom->size = 0;
+	new_polynom->id_variable = 1;
+	for(int i = 0; i < COUNT_MONOM; i++)
+	{
+		for(int j = 0; j < SIZE_MONOM; j++)
+			new_polynom->structure[i][j] = 0;
+	}
+}
 
 void AddMonom(struct Expression *polynom, int *monom, int idx)
 {
@@ -287,22 +361,6 @@ struct Expression* GetPolynom(char variable_p)
 	return &symbols[idx];
 }
 
-void MonomlPower(int* monom, int power)
-{
-	for(int i = 1; i < SIZE_MONOM; i++)
-	{
-		if(monom[i] != 0)
-			monom[i] = Helper::MultipleNumbers(monom[i], power);
-	}
-	if((monom[0] == 0)&&(power == 0))
-	{
-		printf("Error uncertainty\n");
-		exit(-1);
-	}
-	else
-		monom[0] = Helper::Pow(monom[0], power);
-}
-
 void PrintMatrix(struct Expression* polynom)
 {
 	printf("\n");
@@ -372,7 +430,6 @@ void PrintPolynom(int idx)
 	printf("\n");
 }
 
-
 struct Expression* PolynomInit()
 {
 	struct Expression *new_polynom = (struct Expression*)malloc(sizeof(struct Expression));
@@ -384,58 +441,4 @@ struct Expression* PolynomInit()
 	ZeroStruct(new_polynom);
 	return new_polynom;
 
-}
-
-int* CreateList()
-{
-	int *mass = (int*)malloc(SIZE_MONOM * sizeof(int));
-	for(int i = 0; i <= SIZE_MONOM; i++)
-		mass[i] = 0;
-	return mass;
-}
-
-int* MonomialInit(char symbol, int degree, int coef)
-{
-	int idx = 0;
-
-	int *new_monomial =	CreateList();
-
-	if(symbol != 0)
-	{
-		idx = Helper::CharSymbolToIndex(symbol) + 1;
-		new_monomial[idx] = degree;
-	}
-	new_monomial[0] = coef;
-
-	
-	return new_monomial;
-}
-
-int* MonomialMultipl(int *monom_1, int *monom_2)
-{
-	int *result = MonomialInit(0, 0, 1);
-	for(int i = 1; i <= SIZE_MONOM; i++)
-		result[i] = monom_1[i] + monom_2[i];
-
-	//multiple coeff
-	result[0] = Helper::MultipleNumbers( monom_1[0], monom_2[0]);
-
-	return result;
-}
-
-void MonomialPrint(int *result_monom)
-{
-	char symbol = '\0';
-	if(result_monom[0] != 0)
-		printf("%d", result_monom[0]);
-	for(int i = 1; i <= SIZE_MONOM; i++)
-	{
-		if(result_monom[i] != 0)
-		{
-			symbol = Helper::IntSymbolToChar(i);
-			printf("%c", symbol);
-		}
-	}
-
-	printf("\n");
 }
