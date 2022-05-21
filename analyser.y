@@ -8,18 +8,18 @@ int yylex();
 	int 	num; 
 	int 	*piece_formula;
 	char 	id; 
-	struct 	Exp *formula
+	struct 	Expression *formula;
 	}         /* Yacc definitions */
 
 %start begin
 %token PRINT
 %token MINUS
-%token END_OF_STRING
+%token END_OF_LINE
 %token END_OF_FILE
 
 %token <num> NUMBER
 
-%token <id> var  
+%token <id> VAR  
 %token <id> LITERAL
 
 %type <formula> polynom  
@@ -44,16 +44,16 @@ int yylex();
 
 
 %%
-begin 		: line END_OF_STRING begin
+begin 		: line END_OF_LINE begin
 				{
 					;
 				}
-			| line END_OF_STRING
+			| line END_OF_LINE
 				{
 					;
 				}
 				
-			| END_OF_STRING begin
+			| END_OF_LINE begin
 				{
 					;
 				}
@@ -68,24 +68,24 @@ line		: assignment ';'
 					;
 				}
 
-			| PRINT var ';'
+			| PRINT VAR ';'
 				{
-					int idx = CharSymbolToIndex($2);
+					int idx = Helper::CharSymbolToIndex($2);
 					PrintPolynom(idx);
 				}
 			| assignment 
 				{
-					PrintError("Forgot in assignment ';'");
+					Helper::PrintError("Forgot in assignment ';'");
 				}
-			| PRINT var 
+			| PRINT VAR 
 				{
-					PrintError("Forgot in error ';'");
+					Helper::PrintError("Forgot in error ';'");
 				}
 			;
 
-assignment	: var '=' polynom 		
+assignment	: VAR '=' polynom 		
 				{
-					int idx = CharSymbolToIndex($1);
+					int idx = Helper::CharSymbolToIndex($1);
 					AssignmentPolynom($1, $3);
 				}
 			| errors
@@ -93,9 +93,9 @@ assignment	: var '=' polynom
 					;
 				}
 			;
-errors 		: var '='
+errors 		: VAR '='
 				{
-					PrintError("Error initialization");
+					Helper::PrintError("Error initialization");
 					exit(-1);
 				}
 			
@@ -126,11 +126,11 @@ polynom 	: MINUS polynom %prec NEG
 				{
 					$$ = PolynomMultiple($1, $3);
 				}
-			| var
+			| VAR
 				{
 					$$ = GetPolynom($1);
 				}
-			| var '^' power
+			| VAR '^' power
 				{
 					$$ = GetPolynom($1);
 					$$ = PolynomPower($$, $3);
@@ -176,15 +176,15 @@ power 		: NUMBER
 				}
 			| power '*' power
 				{
-					$$ = MultipleNumbers($1,$3);
+					$$ = Helper::MultipleNumbers($1,$3);
 				}
 			| power '^' power 
 				{
-					$$ = Pow($1, $3);
+					$$ = Helper::Pow($1, $3);
 				}
 			| MINUS power %prec NEG	
 				{
-					PrintError("Negative power not supposed");
+					Helper::PrintError("Negative power not supposed");
 					$$ = 0 - $2;
 				}
 			| '(' power ')'
@@ -204,7 +204,7 @@ symbol		: NUMBER
  				}
 			| PRINT
 				{
-					PrintError("Incorrect assignment");
+					Helper::PrintError("Incorrect assignment");
 				}
 			| symbol '^' power
 				{
